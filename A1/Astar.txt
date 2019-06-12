@@ -1,0 +1,10 @@
+1. In the worst situation, h(n) = 120% h*(n) = 1.2 h*(n). We can divide our heuristic value by 1.2, and by doing this, we guarantee that our heuristic h(n) would be less than or equal to the cost of optimal path h*(n). By doing that h(n) would be admissible, and admissibility implies optimality, so we can guarantee an optimal result.
+2. False. Consider this example:
+#######
+#ab   #
+#     #
+#A *cd#
+#     #
+#e   f#
+#######
+At this state, the xanadu A has manhattan distance of 2, but it only needs 1 step in order to reach the goal state. h(n) > h*(n), therefore sum of manhattan distance is not an admissible heuristic function.
