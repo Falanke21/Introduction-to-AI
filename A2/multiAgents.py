@@ -74,13 +74,17 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
+        oldFood = currentGameState.getFood()
+        currentPos = currentGameState.getPacmanPosition()
         currentGhostStates = currentGameState.getGhostStates()
         chased = False
+        chasedBy = None
         for i in range(len(currentGhostStates)):
             if newScaredTimes[i] == 0:
-                dis = manhattanDistance(newPos, currentGhostStates[i].configuration.pos)
+                dis = manhattanDistance(currentPos, currentGhostStates[i].configuration.pos)
                 if dis < 3:
                     chased = True
+                    chasedBy = i
 
         capsules = currentGameState.getCapsules()
 
@@ -89,9 +93,43 @@ class ReflexAgent(Agent):
                 dis = manhattanDistance(newPos, capsules[i])
                 if dis == 0:
                     return float("inf")
-            return sum([manhattanDistance(newPos, item) for item in successorGameState.getGhostPositions()])
+            return manhattanDistance(newPos, currentGhostStates[chasedBy].configuration.pos)
 
-        return successorGameState.getScore()
+        direction = nextToFood(oldFood, currentPos)
+        if direction and direction == action:
+            return float("inf")
+
+        goalFood = findGoalFood(newFood)
+        if not goalFood:
+            raise Exception
+        dis = manhattanDistance(newPos, goalFood)
+        return 1 / dis
+
+
+def nextToFood(oldFood, currentPos):
+    if oldFood.data[currentPos[0] + 1][currentPos[1]]:
+        return "East"
+    elif oldFood.data[currentPos[0] - 1][currentPos[1]]:
+        return "West"
+    elif oldFood.data[currentPos[0]][currentPos[1] + 1]:
+        return "North"
+    elif oldFood.data[currentPos[0]][currentPos[1] - 1]:
+        return "South"
+    return None
+
+
+def findGoalFood(newFood):
+    x = y = 0
+    width = len(newFood.data)
+    height = len(newFood.data[0])
+    while x != width:
+        if newFood[x][y]:
+            return (x, y)
+        y += 1
+        if y == height:
+            x += 1
+            y = 0
+    return None
 
 
 def scoreEvaluationFunction(currentGameState):
