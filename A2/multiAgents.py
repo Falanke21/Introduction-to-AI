@@ -74,18 +74,24 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        for i in range(len(newGhostStates)):
+        currentGhostStates = currentGameState.getGhostStates()
+        chased = False
+        for i in range(len(currentGhostStates)):
             if newScaredTimes[i] == 0:
-                dis = manhattanDistance(newPos, newGhostStates[i].configuration.pos)
+                dis = manhattanDistance(newPos, currentGhostStates[i].configuration.pos)
                 if dis < 3:
-                    return 0
-        result = 0
-        for i in range(len(newGhostStates)):
-            if newScaredTimes[i] < 5:
-                result += manhattanDistance(newPos, newGhostStates[i].configuration.pos)
+                    chased = True
 
-        print(result)
-        return result
+        capsules = currentGameState.getCapsules()
+
+        if chased:
+            for i in range(len(capsules)):
+                dis = manhattanDistance(newPos, capsules[i])
+                if dis == 0:
+                    return float("inf")
+            return sum([manhattanDistance(newPos, item) for item in successorGameState.getGhostPositions()])
+
+        return successorGameState.getScore()
 
 
 def scoreEvaluationFunction(currentGameState):
