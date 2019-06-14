@@ -107,6 +107,12 @@ class ReflexAgent(Agent):
 
 
 def nextToFood(oldFood, currentPos):
+    """
+    Check whether currentPos is next to a food position. Returns the action that algorithm should perform
+    :param oldFood: the grid of food
+    :param currentPos:
+    :return: string
+    """
     if oldFood.data[currentPos[0] + 1][currentPos[1]]:
         return "East"
     elif oldFood.data[currentPos[0] - 1][currentPos[1]]:
@@ -119,6 +125,11 @@ def nextToFood(oldFood, currentPos):
 
 
 def findGoalFood(newFood):
+    """
+    Find the next food that should be chased.
+    :param newFood: the food grid
+    :return: the position of the food desired as tuple.
+    """
     x = y = 0
     width = len(newFood.data)
     height = len(newFood.data[0])
