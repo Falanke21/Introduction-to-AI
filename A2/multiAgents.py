@@ -95,52 +95,50 @@ class ReflexAgent(Agent):
                     return float("inf")
             return manhattanDistance(newPos, currentGhostStates[chasedBy].configuration.pos)
 
-        direction = nextToFood(oldFood, currentPos)
+        direction = self.nextToFood(oldFood, currentPos)
         if direction and direction == action:
             return float("inf")
 
-        goalFood = findGoalFood(newFood)
+        goalFood = self.findGoalFood(newFood)
         if not goalFood:
             raise Exception
         dis = manhattanDistance(newPos, goalFood)
         return 1 / dis
 
+    def nextToFood(self, oldFood, currentPos):
+        """
+        Check whether currentPos is next to a food position. Returns the action that algorithm should perform
+        :param oldFood: the grid of food
+        :param currentPos:
+        :return: string
+        """
+        if oldFood.data[currentPos[0] + 1][currentPos[1]]:
+            return "East"
+        elif oldFood.data[currentPos[0] - 1][currentPos[1]]:
+            return "West"
+        elif oldFood.data[currentPos[0]][currentPos[1] + 1]:
+            return "North"
+        elif oldFood.data[currentPos[0]][currentPos[1] - 1]:
+            return "South"
+        return None
 
-def nextToFood(oldFood, currentPos):
-    """
-    Check whether currentPos is next to a food position. Returns the action that algorithm should perform
-    :param oldFood: the grid of food
-    :param currentPos:
-    :return: string
-    """
-    if oldFood.data[currentPos[0] + 1][currentPos[1]]:
-        return "East"
-    elif oldFood.data[currentPos[0] - 1][currentPos[1]]:
-        return "West"
-    elif oldFood.data[currentPos[0]][currentPos[1] + 1]:
-        return "North"
-    elif oldFood.data[currentPos[0]][currentPos[1] - 1]:
-        return "South"
-    return None
-
-
-def findGoalFood(newFood):
-    """
-    Find the next food that should be chased.
-    :param newFood: the food grid
-    :return: the position of the food desired as tuple.
-    """
-    x = y = 0
-    width = len(newFood.data)
-    height = len(newFood.data[0])
-    while x != width:
-        if newFood[x][y]:
-            return (x, y)
-        y += 1
-        if y == height:
-            x += 1
-            y = 0
-    return None
+    def findGoalFood(self, newFood):
+        """
+        Find the next food that should be chased.
+        :param newFood: the food grid
+        :return: the position of the food desired as tuple.
+        """
+        x = y = 0
+        width = len(newFood.data)
+        height = len(newFood.data[0])
+        while x != width:
+            if newFood[x][y]:
+                return (x, y)
+            y += 1
+            if y == height:
+                x += 1
+                y = 0
+        return None
 
 
 def scoreEvaluationFunction(currentGameState):
