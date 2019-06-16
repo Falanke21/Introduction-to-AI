@@ -214,7 +214,7 @@ class MinimaxNode:
         self.numAgents = gameState.getNumAgents()
 
     def bestAction(self):
-        scoresTuple = (0, 0)  # (action, score)
+        scoresTuple = (0, float("-inf"))  # (action, score)
         for item in self.getChildrenWithAction():
             # item: (action, node)
             itemScore = item[1].getScore()
