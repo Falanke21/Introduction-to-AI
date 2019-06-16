@@ -214,6 +214,10 @@ class MinimaxNode:
         self.numAgents = gameState.getNumAgents()
 
     def bestAction(self):
+        """
+        Finds the best action of the current node
+        :return: the best action
+        """
         scoresTuple = (0, float("-inf"))  # (action, score)
         for item in self.getChildrenWithAction():
             # item: (action, node)
@@ -223,6 +227,10 @@ class MinimaxNode:
         return scoresTuple[0]
 
     def getChildren(self):
+        """
+        Returns a list of children nodes of the current node
+        :return: list of children
+        """
         result = []
         for action in self.gameState.getLegalActions(self.agentIndex):
             childState = self.gameState.generateSuccessor(self.agentIndex, action)
@@ -235,6 +243,10 @@ class MinimaxNode:
         return result
 
     def getChildrenWithAction(self):
+        """
+        Same with getChildren(), but also returns the actions associates with the children
+        :return: list of tuple of (action, childNode)
+        """
         result = []
         for action in self.gameState.getLegalActions(self.agentIndex):
             childState = self.gameState.generateSuccessor(self.agentIndex, action)
@@ -247,6 +259,10 @@ class MinimaxNode:
         return result
 
     def getScore(self):
+        """
+        Finds the minimax score of current node. Recursive.
+        :return: the score
+        """
         if self.depth > self.maxDepth:
             return self.evalFn(self.gameState)
         if self.gameState.isWin():
@@ -260,6 +276,9 @@ class MinimaxNode:
             return max(scores)
         else:
             return min(scores)
+
+        # Explorative question: Because in situations where death is imminent, minimax finds all termination states
+        # which include lose states. And it turns our that the dead state gives it more points when die early.
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
