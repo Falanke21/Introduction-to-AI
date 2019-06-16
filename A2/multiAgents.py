@@ -250,9 +250,9 @@ class MinimaxNode:
         if self.depth > self.maxDepth:
             return self.evalFn(self.gameState)
         if self.gameState.isWin():
-            return float("inf")
+            return self.evalFn(self.gameState)
         if self.gameState.isLose():
-            return float("-inf")
+            return self.evalFn(self.gameState)
         scores = []
         for child in self.getChildren():
             scores.append(child.getScore())
