@@ -196,7 +196,68 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        root = MinimaxNode(gameState, 0, 1, self.depth)
+        return root.bestAction()
+
+
+class MinimaxNode:
+    """
+    Node for minimax
+    """
+
+    def __init__(self, gameState, agentIndex, depth, maxDepth):
+        self.maxDepth = maxDepth
+        self.depth = depth
+        self.gameState = gameState
+        self.agentIndex = agentIndex
+        self.numAgents = gameState.getNumAgents()
+
+    def bestAction(self):
+        scoresTuple = (0, 0)  # (action, score)
+        for item in self.getChildrenWithAction():
+            # item: (action, node)
+            itemScore = item[1].getScore()
+            if scoresTuple[1] <= itemScore:
+                scoresTuple = (item[0], itemScore)
+        return scoresTuple[0]
+
+    def getChildren(self):
+        result = []
+        for action in self.gameState.getLegalActions(self.agentIndex):
+            childState = self.gameState.generateSuccessor(self.agentIndex, action)
+            childIndex = self.agentIndex + 1
+            if childIndex == self.numAgents:  # child is a pacman layer
+                childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth)
+            else:
+                childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth)
+            result.append(childNode)
+        return result
+
+    def getChildrenWithAction(self):
+        result = []
+        for action in self.gameState.getLegalActions(self.agentIndex):
+            childState = self.gameState.generateSuccessor(self.agentIndex, action)
+            childIndex = self.agentIndex + 1
+            if childIndex == self.numAgents:
+                childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth)
+            else:
+                childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth)
+            result.append((action, childNode))
+        return result
+
+    def getScore(self):
+        # TODO add depth
+        if self.gameState.isWin():
+            return float("inf")
+        if self.gameState.isLose():
+            return float("-inf")
+        scores = []
+        for child in self.getChildren():
+            scores.append(child.getScore())
+        if self.agentIndex == 0:
+            return max(scores)
+        else:
+            return min(scores)
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
