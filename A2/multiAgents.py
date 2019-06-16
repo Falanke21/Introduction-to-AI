@@ -196,7 +196,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        root = MinimaxNode(gameState, 0, 1, self.depth)
+        root = MinimaxNode(gameState, 0, 1, self.depth, self.evaluationFunction)
         return root.bestAction()
 
 
@@ -205,7 +205,8 @@ class MinimaxNode:
     Node for minimax
     """
 
-    def __init__(self, gameState, agentIndex, depth, maxDepth):
+    def __init__(self, gameState, agentIndex, depth, maxDepth, evalFn):
+        self.evalFn = evalFn
         self.maxDepth = maxDepth
         self.depth = depth
         self.gameState = gameState
@@ -227,9 +228,9 @@ class MinimaxNode:
             childState = self.gameState.generateSuccessor(self.agentIndex, action)
             childIndex = self.agentIndex + 1
             if childIndex == self.numAgents:  # child is a pacman layer
-                childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth)
+                childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
             else:
-                childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth)
+                childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
             result.append(childNode)
         return result
 
@@ -239,14 +240,15 @@ class MinimaxNode:
             childState = self.gameState.generateSuccessor(self.agentIndex, action)
             childIndex = self.agentIndex + 1
             if childIndex == self.numAgents:
-                childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth)
+                childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
             else:
-                childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth)
+                childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
             result.append((action, childNode))
         return result
 
     def getScore(self):
-        # TODO add depth
+        if self.depth > self.maxDepth:
+            return self.evalFn(self.gameState)
         if self.gameState.isWin():
             return float("inf")
         if self.gameState.isLose():
