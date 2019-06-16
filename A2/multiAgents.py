@@ -281,6 +281,89 @@ class MinimaxNode:
         # which include lose states. And it turns our that the dead state gives it more points when die early.
 
 
+class AlphaBetaNode(MinimaxNode):
+    """
+    Node for alpha beta pruning
+    """
+
+    def __init__(self, gameState, agentIndex, depth, maxDepth, evalFn):
+        MinimaxNode.__init__(self, gameState, agentIndex, depth, maxDepth, evalFn)
+        self.alpha = float("-inf")
+        self.beta = float("inf")
+
+    def setAlpha(self, value):
+        """
+        Setter for alpha
+        """
+        self.alpha = value
+
+    def setBeta(self, value):
+        """
+        Setter for beta
+        """
+        self.beta = value
+
+    def getChildren(self):
+        """
+        Returns a list of children nodes of the current node
+        :return: list of children
+        """
+        result = []
+        for action in self.gameState.getLegalActions(self.agentIndex):
+            childState = self.gameState.generateSuccessor(self.agentIndex, action)
+            childIndex = self.agentIndex + 1
+            if childIndex == self.numAgents:  # child is a pacman layer
+                childNode = AlphaBetaNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
+            else:
+                childNode = AlphaBetaNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
+            childNode.setAlpha(self.alpha)
+            childNode.setBeta(self.beta)
+            result.append(childNode)
+        return result
+
+    def getChildrenWithAction(self):
+        """
+        Same with getChildren(), but also returns the actions associates with the children
+        :return: list of tuple of (action, childNode)
+        """
+        result = []
+        for action in self.gameState.getLegalActions(self.agentIndex):
+            childState = self.gameState.generateSuccessor(self.agentIndex, action)
+            childIndex = self.agentIndex + 1
+            if childIndex == self.numAgents:
+                childNode = AlphaBetaNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
+            else:
+                childNode = AlphaBetaNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
+            childNode.setAlpha(self.alpha)
+            childNode.setBeta(self.beta)
+            result.append((action, childNode))
+        return result
+
+    def getScore(self):
+        """
+        Finds the minimax score of current node. Recursive.
+        :return: the score
+        """
+        if self.depth > self.maxDepth:
+            return self.evalFn(self.gameState)
+        if self.gameState.isWin():
+            return self.evalFn(self.gameState)
+        if self.gameState.isLose():
+            return self.evalFn(self.gameState)
+        if self.agentIndex == 0:  # self is a max node
+            for child in self.getChildren():
+                self.setAlpha(max(self.alpha, child.getScore()))
+                if self.alpha >= self.beta:
+                    return self.alpha
+            return self.alpha
+        else:  # self is a min node
+            for child in self.getChildren():
+                self.setBeta(min(self.beta, child.getScore()))
+                if self.alpha >= self.beta:
+                    return self.beta
+            return self.beta
+
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
@@ -291,7 +374,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        root = AlphaBetaNode(gameState, 0, 1, self.depth, self.evaluationFunction)
+        return root.bestAction()
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
