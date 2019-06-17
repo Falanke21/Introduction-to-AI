@@ -303,6 +303,22 @@ class AlphaBetaNode(MinimaxNode):
         """
         self.beta = value
 
+    def bestAction(self):
+        """
+        Finds the best action of the current node
+        :return: the best action
+        """
+        scoresTuple = (0, float("-inf"))  # (action, score)
+        for item in self.getChildrenWithAction():
+            item[1].setAlpha(self.alpha)
+            # item: (action, node)
+            itemScore = item[1].getScore()
+            if itemScore >= self.alpha:
+                self.setAlpha(itemScore)
+            if scoresTuple[1] <= itemScore:
+                scoresTuple = (item[0], itemScore)
+        return scoresTuple[0]
+
     def getChildren(self):
         """
         Returns a list of children nodes of the current node
