@@ -458,7 +458,90 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    foodGrid = currentGameState.getFood()
+    pacmanPos = currentGameState.getPacmanPosition()
+    currentGhostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in currentGhostStates]
+    chased = False
+    chasedBy = None
+    for i in range(len(currentGhostStates)):
+        if scaredTimes[i] == 0:
+            dis = manhattanDistance(pacmanPos, currentGhostStates[i].configuration.pos)
+            if dis < 3:
+                chased = True
+                chasedBy = i
+
+    if chased:
+        return manhattanDistance(pacmanPos, currentGhostStates[chasedBy].configuration.pos)
+
+    result = 0
+    totalScareTime = sum(scaredTimes)
+    goalFood = findGoalFood(foodGrid)
+    if goalFood is not None:
+        disToFood = manhattanDistance(goalFood, pacmanPos)
+        result += (1 / disToFood) * 10
+
+    result += currentGameState.getScore() + totalScareTime
+    # result += totalScareTime
+    return result
+
+
+# def findOrientation(goalFood, pacmanPos):
+#     """
+#     Finds the orientation of where pacman should go to reach goalFood.
+#     Return a string which might contain char 'n' 's' 'e' 'w'.
+#     """
+#     result = ""
+#     if goalFood[0] < pacmanPos[0]:
+#         result += 'w'
+#     if goalFood[0] > pacmanPos[0]:
+#         result += 'e'
+#     if goalFood[1] < pacmanPos[1]:
+#         result += 's'
+#     if goalFood[1] > pacmanPos[1]:
+#         result += 'n'
+#     return result
+#
+#
+# def isBlocked(goalFood, currentGameState):
+#     """
+#     Check whether pacman and goalFood is blocked by a wall
+#     """
+#     pacmanPos = currentGameState.getPacmanPosition()
+#     orientation = findOrientation(goalFood, pacmanPos)
+#     blocked = False
+#     if 'w' in orientation and currentGameState.hasWall(pacmanPos[0] - 1, pacmanPos[1]):
+#         blocked = True
+#         print("blocked on w")
+#     if 'e' in orientation and currentGameState.hasWall(pacmanPos[0] + 1, pacmanPos[1]):
+#         blocked = True
+#         print("blocked on e")
+#     if 's' in orientation and currentGameState.hasWall(pacmanPos[0], pacmanPos[1] - 1):
+#         blocked = True
+#         print("blocked on s")
+#     if 'n' in orientation and currentGameState.hasWall(pacmanPos[0], pacmanPos[1] + 1):
+#         blocked = True
+#         print("blocked on n")
+#     return blocked
+
+
+def findGoalFood(foodGrid):
+    """
+    Find the next food that should be chased.
+    :param foodGrid: the food grid
+    :return: the position of the food desired as tuple.
+    """
+    x = y = 0
+    width = len(foodGrid.data)
+    height = len(foodGrid.data[0])
+    while x != width:
+        if foodGrid[x][y]:
+            return (x, y)
+        y += 1
+        if y == height:
+            x += 1
+            y = 0
+    return None
 
 
 # Abbreviation
