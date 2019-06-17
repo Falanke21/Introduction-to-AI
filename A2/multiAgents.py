@@ -226,6 +226,19 @@ class MinimaxNode:
                 scoresTuple = (item[0], itemScore)
         return scoresTuple[0]
 
+    def generateChildNode(self, action):
+        """
+        Generate the child node by the action applied
+        :param action: the action that parent state applied
+        """
+        childState = self.gameState.generateSuccessor(self.agentIndex, action)
+        childIndex = self.agentIndex + 1
+        if childIndex == self.numAgents:  # child is a pacman layer
+            childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
+        else:
+            childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
+        return childNode
+
     def getChildren(self):
         """
         Returns a list of children nodes of the current node
@@ -233,12 +246,7 @@ class MinimaxNode:
         """
         result = []
         for action in self.gameState.getLegalActions(self.agentIndex):
-            childState = self.gameState.generateSuccessor(self.agentIndex, action)
-            childIndex = self.agentIndex + 1
-            if childIndex == self.numAgents:  # child is a pacman layer
-                childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
-            else:
-                childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
+            childNode = self.generateChildNode(action)
             result.append(childNode)
         return result
 
@@ -249,12 +257,7 @@ class MinimaxNode:
         """
         result = []
         for action in self.gameState.getLegalActions(self.agentIndex):
-            childState = self.gameState.generateSuccessor(self.agentIndex, action)
-            childIndex = self.agentIndex + 1
-            if childIndex == self.numAgents:
-                childNode = MinimaxNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
-            else:
-                childNode = MinimaxNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
+            childNode = self.generateChildNode(action)
             result.append((action, childNode))
         return result
 
