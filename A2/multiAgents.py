@@ -306,57 +306,56 @@ class AlphaBetaNode(MinimaxNode):
         """
         self.beta = value
 
+    def atMaxNode(self, action):
+        """
+        Code to do when at a max node
+        :param action: the action that applied on this node
+        :return: the score of its child, only to be used by the root
+        """
+        childNode = self.generateChildNode(action)
+        childScore = childNode.getScore()
+        if childScore >= self.alpha:
+            self.setAlpha(childScore)
+        return childScore
+
+    def atMinNode(self, action):
+        """
+        Code to do when at a min node
+        :param action: the action that applied on this node
+        :return: the score of its child, pretty much useless
+        """
+        childNode = self.generateChildNode(action)
+        childScore = childNode.getScore()
+        if childScore <= self.beta:
+            self.setBeta(childScore)
+        return childScore
+
     def bestAction(self):
         """
         Finds the best action of the current node
         :return: the best action
         """
         scoresTuple = (0, float("-inf"))  # (action, score)
-        for item in self.getChildrenWithAction():
-            item[1].setAlpha(self.alpha)
-            # item: (action, node)
-            itemScore = item[1].getScore()
-            if itemScore >= self.alpha:
-                self.setAlpha(itemScore)
-            if scoresTuple[1] <= itemScore:
-                scoresTuple = (item[0], itemScore)
+        for action in self.gameState.getLegalActions(self.agentIndex):
+            childScore = self.atMaxNode(action)
+            if scoresTuple[1] < childScore:
+                scoresTuple = (action, childScore)
         return scoresTuple[0]
 
-    def getChildren(self):
+    def generateChildNode(self, action):
         """
-        Returns a list of children nodes of the current node
-        :return: list of children
+        Generate the child node by the action applied
+        :param action: the action that parent state applied
         """
-        result = []
-        for action in self.gameState.getLegalActions(self.agentIndex):
-            childState = self.gameState.generateSuccessor(self.agentIndex, action)
-            childIndex = self.agentIndex + 1
-            if childIndex == self.numAgents:  # child is a pacman layer
-                childNode = AlphaBetaNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
-            else:
-                childNode = AlphaBetaNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
-            childNode.setAlpha(self.alpha)
-            childNode.setBeta(self.beta)
-            result.append(childNode)
-        return result
-
-    def getChildrenWithAction(self):
-        """
-        Same with getChildren(), but also returns the actions associates with the children
-        :return: list of tuple of (action, childNode)
-        """
-        result = []
-        for action in self.gameState.getLegalActions(self.agentIndex):
-            childState = self.gameState.generateSuccessor(self.agentIndex, action)
-            childIndex = self.agentIndex + 1
-            if childIndex == self.numAgents:
-                childNode = AlphaBetaNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
-            else:
-                childNode = AlphaBetaNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
-            childNode.setAlpha(self.alpha)
-            childNode.setBeta(self.beta)
-            result.append((action, childNode))
-        return result
+        childState = self.gameState.generateSuccessor(self.agentIndex, action)
+        childIndex = self.agentIndex + 1
+        if childIndex == self.numAgents:  # child is a pacman layer
+            childNode = AlphaBetaNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
+        else:
+            childNode = AlphaBetaNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
+        childNode.setAlpha(self.alpha)
+        childNode.setBeta(self.beta)
+        return childNode
 
     def getScore(self):
         """
@@ -370,14 +369,14 @@ class AlphaBetaNode(MinimaxNode):
         if self.gameState.isLose():
             return self.evalFn(self.gameState)
         if self.agentIndex == 0:  # self is a max node
-            for child in self.getChildren():
-                self.setAlpha(max(self.alpha, child.getScore()))
+            for action in self.gameState.getLegalActions(self.agentIndex):
+                self.atMaxNode(action)
                 if self.alpha >= self.beta:
                     return self.alpha
             return self.alpha
         else:  # self is a min node
-            for child in self.getChildren():
-                self.setBeta(min(self.beta, child.getScore()))
+            for action in self.gameState.getLegalActions(self.agentIndex):
+                self.atMinNode(action)
                 if self.alpha >= self.beta:
                     return self.beta
             return self.beta
