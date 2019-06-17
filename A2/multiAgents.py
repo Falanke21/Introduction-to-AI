@@ -396,6 +396,43 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return root.bestAction()
 
 
+class ExpectimaxNode(MinimaxNode):
+    """
+    Node for expectimax
+    """
+    def getScore(self):
+        """
+        Finds the minimax score of current node. Recursive.
+        :return: the score
+        """
+        if self.depth > self.maxDepth:
+            return self.evalFn(self.gameState)
+        if self.gameState.isWin():
+            return self.evalFn(self.gameState)
+        if self.gameState.isLose():
+            return self.evalFn(self.gameState)
+        scores = []
+        for child in self.getChildren():
+            scores.append(child.getScore())
+        if self.agentIndex == 0:
+            return max(scores)
+        else:
+            return float(sum(scores)) / len(scores)
+
+    def generateChildNode(self, action):
+        """
+        Generate the child node by the action applied
+        :param action: the action that parent state applied
+        """
+        childState = self.gameState.generateSuccessor(self.agentIndex, action)
+        childIndex = self.agentIndex + 1
+        if childIndex == self.numAgents:  # child is a pacman layer
+            childNode = ExpectimaxNode(childState, 0, self.depth + 1, self.maxDepth, self.evalFn)
+        else:
+            childNode = ExpectimaxNode(childState, childIndex, self.depth, self.maxDepth, self.evalFn)
+        return childNode
+
+
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
@@ -409,7 +446,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        root = ExpectimaxNode(gameState, 0, 1, self.depth, self.evaluationFunction)
+        return root.bestAction()
 
 
 def betterEvaluationFunction(currentGameState):
