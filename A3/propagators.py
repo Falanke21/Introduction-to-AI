@@ -82,9 +82,45 @@ def prop_FC(csp, newVar=None):
     '''Do forward checking. That is check constraints with
        only one uninstantiated variable. Remember to keep
        track of all pruned variable,value pairs and return '''
+    pruned_values = []
+    if not newVar:
+        for c in csp.get_all_cons():
+            if len(c.get_scope) == 1:  # unary constraints
+                variable = c.get_scope[0]
+                domain = variable.domain()
+                dwo_flag = True
+                for d in domain:
+                    if c.check((d,)):
+                        dwo_flag = False
+                    else:  # this d value violates constraint c
+                        variable.prune_value(d)
+                        pruned_values.append((variable, d))
+                if dwo_flag:  # if no value have passed the check
+                    return (False, pruned_values)
+        return (True, pruned_values)
+    else:
+        for c in csp.get_cons_with_var(newVar):
+            if c.get_n_unasgn == 1:  # only one unassigned variable left
+                dwo_flag = True
+                variables = c.get_scope()
+                values = []
+                unassign_flag = None
+                for i in range(len(variables)):  # construct values list, and find the variable unassigned.
+                    if not variables[i].is_assigned():
+                        unassign_flag = i
+                    values.append(variables[i].get_assigned_value())
+                # Check each d from cur_domain
+                for d in variables[unassign_flag].cur_domain():
+                    values[unassign_flag] = d
+                    if c.check(values):
+                        dwo_flag = False
+                    else:
+                        variables[unassign_flag].prune_value(d)
+                        pruned_values.append((variables[unassign_flag], d))
+                if dwo_flag:
+                    return False, pruned_values
+        return True, pruned_values
 
-
-# IMPLEMENT
 
 def prop_GAC(csp, newVar=None):
     '''Do GAC propagation. If newVar is None we do initial GAC enforce
