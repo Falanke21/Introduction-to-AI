@@ -1,7 +1,8 @@
-#Look for #IMPLEMENT tags in this file. These tags indicate what has
-#to be implemented.
+# Look for #IMPLEMENT tags in this file. These tags indicate what has
+# to be implemented.
 
 import random
+
 '''
 This file will contain different variable ordering heuristics to be used within
 bt_search.
@@ -27,8 +28,13 @@ val_ordering == a function with the following template
 
 '''
 
-def ord_mrv(csp):
-    #IMPLEMENT
 
-def val_lcv(csp,var):
-    #IMPLEMENT
+def ord_mrv(csp):
+    pass
+
+
+# IMPLEMENT
+
+def val_lcv(csp, var):
+    # IMPLEMENT
+    pass
