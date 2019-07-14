@@ -32,6 +32,7 @@ val_ordering == a function with the following template
 def ord_mrv(csp):
     variables = csp.get_all_unasgn_vars()
     result_var = variables[0]
+    # find the variable that has smallest cur_domain_size
     for i in range(1, len(variables)):
         if variables[i].cur_domain_size() < result_var.cur_domain_size():
             result_var = variables[i]
@@ -39,20 +40,23 @@ def ord_mrv(csp):
 
 
 def val_lcv(csp, var):
-    value_score_pair = []
+    value_score_pair = []  # each element is tuple of (value, num of rule out associate with the value)
     domain = var.cur_domain()
     cons = csp.get_cons_with_var(var)
+    # iterate over all values
     for value in domain:
         rule_out_tuples = []
         var.assign(value)
         for con in cons:
             for other_var in con.get_unasgn_vars():
                 for other_val in other_var.cur_domain():
+                    # if the value is not in support, AND (variable, value) pair is not already in rule_out_tuples
                     if (not con.has_support(other_var, other_val)) and (other_var, other_val) not in rule_out_tuples:
                         rule_out_tuples.append((other_var, other_val))
         var.unassign()
         value_score_pair.append((value, len(rule_out_tuples)))
 
+    # sort value_score_pair base on how many values it ruled out
     value_score_pair.sort(key=lambda element: element[1])
     result = [item[0] for item in value_score_pair]
     return result
