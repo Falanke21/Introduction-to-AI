@@ -122,25 +122,30 @@ def prop_GAC(csp, newVar=None):
     '''Do GAC propagation. If newVar is None we do initial GAC enforce
        processing all constraints. Otherwise we do GAC enforce with
        constraints containing newVar on GAC Queue'''
-    pruned_values = []
-    if not newVar:
-        gac_queue = [csp.get_all_cons()]
-        while gac_queue != []:
-            temp_c = gac_queue.pop(0)
-            for var in temp_c.get_scope():
-                dwo_flag = True
-                for d in var.cur_domain():
-                    # for each variable value pairs
-                    # if it does not have a support, prune it from the domain and recheck all constrains
-                    # associate with this variable
-                    if not temp_c.has_support(var, d):
-                        var.prune_value(d)
-                        pruned_values.append((var, d))
-                        for involved_con in csp.get_cons_with_var(var):
-                            if involved_con not in gac_queue:
-                                gac_queue.append(involved_con)
-                    else:
-                        dwo_flag = False
-                if dwo_flag:
-                    return False, pruned_values
 
+    if not newVar:
+        gac_queue = csp.get_all_cons()[:]
+        return GAC_enforce(csp, gac_queue)
+    else:
+        gac_queue = csp.get_cons_with_var(newVar)[:]
+        return GAC_enforce(csp, gac_queue)
+
+
+def GAC_enforce(csp, gac_queue):
+    pruned_values = []
+    while gac_queue != []:
+        temp_c = gac_queue.pop(0)
+        for var in temp_c.get_scope():
+            for d in var.cur_domain():
+                # for each variable value pairs
+                # if it does not have a support, prune it from the domain and recheck all constrains
+                # associate with this variable
+                if not temp_c.has_support(var, d):
+                    var.prune_value(d)
+                    pruned_values.append((var, d))
+                    for involved_con in csp.get_cons_with_var(var):
+                        if involved_con not in gac_queue:
+                            gac_queue.append(involved_con)
+                if var.cur_domain_size() == 0:
+                    return False, pruned_values
+    return True, pruned_values

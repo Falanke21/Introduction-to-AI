@@ -49,11 +49,11 @@ btracker.bt_search(prop_BT)
 print("=======================================================")
 
 
-print("Forward Checking on simple CSP")
-btracker.bt_search(prop_FC)
-print("=======================================================")
-# print("GAC on simple CSP")
-# btracker.bt_search(prop_GAC)
+# print("Forward Checking on simple CSP")
+# btracker.bt_search(prop_FC)
+# print("=======================================================")
+print("GAC on simple CSP")
+btracker.bt_search(prop_GAC)
 
 # Now n-Queens example
 
@@ -110,8 +110,8 @@ trace = False
 print("Plain Bactracking on 8-queens")
 solve_nQueens(8, 'BT', trace)
 print("=======================================================")
-print("Forward Checking 8-queens")
-solve_nQueens(8, 'FC', trace)
-print("=======================================================")
-# print("GAC 8-queens")
-# solve_nQueens(8, 'GAC', trace)
+# print("Forward Checking 8-queens")
+# solve_nQueens(8, 'FC', trace)
+# print("=======================================================")
+print("GAC 8-queens")
+solve_nQueens(8, 'GAC', trace)
