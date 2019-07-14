@@ -85,7 +85,7 @@ def prop_FC(csp, newVar=None):
     pruned_values = []
     if not newVar:
         for c in csp.get_all_cons():
-            if len(c.get_scope) == 1:  # unary constraints
+            if len(c.get_scope()) == 1:  # unary constraints
                 variable = c.get_scope[0]
                 domain = variable.domain()
                 dwo_flag = True
@@ -100,7 +100,7 @@ def prop_FC(csp, newVar=None):
         return (True, pruned_values)
     else:
         for c in csp.get_cons_with_var(newVar):
-            if c.get_n_unasgn == 1:  # only one unassigned variable left
+            if c.get_n_unasgn() == 1:  # only one unassigned variable left
                 dwo_flag = True
                 variables = c.get_scope()
                 values = []
