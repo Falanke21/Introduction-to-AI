@@ -132,6 +132,9 @@ def prop_GAC(csp, newVar=None):
 
 
 def GAC_enforce(csp, gac_queue):
+    """
+    Main algorithm of GAC, use a queue to continuously prune inconsistent values.
+    """
     pruned_values = []
     while gac_queue != []:
         temp_c = gac_queue.pop(0)
