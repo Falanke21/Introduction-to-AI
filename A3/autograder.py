@@ -2,7 +2,7 @@ from kenken_csp import *
 from propagators import *
 from heuristics import *
 
-test_props = True;
+test_props = False;
 test_ord_mrv = True;
 test_ord_lcv = True;
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
         vals = val_lcv(map_2_CSP, map_2_CSP.vars[0])
         if vals:
-            if (vals == [2, 1]):
+            if (vals == [1, 2]):
                 print("Passed Second Ord LCV Test")
             else:
                 print("Failed Second LCV test")
