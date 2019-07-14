@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
         vals = val_lcv(map_2_CSP, map_2_CSP.vars[0])
         if vals:
-            if (vals == [2, 1]):
+            if (vals == [1, 2]):
                 print("Passed First Ord LCV Test")
             else:
                 print("Failed First LCV test")
