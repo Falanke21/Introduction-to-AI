@@ -56,8 +56,8 @@ def all_diff(t):
     return False
 
 
-def get_sat_tuples(n):
-    return itertools.permutations(range(1, n + 1))
+def get_sat_tuples(curr_variables, n):
+    return list(itertools.permutations(range(1, n+1), r=len(curr_variables)))
 
 
 def binary_ne_grid(kenken_grid):
@@ -73,14 +73,14 @@ def binary_ne_grid(kenken_grid):
             for k in range(i+1, n):
                 curr_variables = [two_d_array[i][j], two_d_array[k][j]]
                 verti_con = Constraint(str(i) + str(j) + " and " + str(k) + str(j), curr_variables)
-                sat_tuples = get_sat_tuples(len(curr_variables))
+                sat_tuples = get_sat_tuples(curr_variables, n)
                 verti_con.add_satisfying_tuples(sat_tuples)
                 csp.add_constraint(verti_con)
 
             for k in range(j+1, n):
                 curr_variables = [two_d_array[i][j], two_d_array[i][k]]
                 hori_con = Constraint(str(i) + str(j) + " and " + str(i) + str(k), curr_variables)
-                sat_tuples = get_sat_tuples(len(curr_variables))
+                sat_tuples = get_sat_tuples(curr_variables, n)
                 hori_con.add_satisfying_tuples(sat_tuples)
                 csp.add_constraint(hori_con)
     return csp, two_d_array
@@ -95,7 +95,7 @@ def nary_ad_grid(kenken_grid):
     # add row constrains
     for i in range(n):
         row_con = Constraint("Row " + str(i + 1), two_d_array[i])
-        sat_tuples = get_sat_tuples(len(two_d_array[i]))
+        sat_tuples = get_sat_tuples(two_d_array[i], n)
         row_con.add_satisfying_tuples(sat_tuples)
         csp.add_constraint(row_con)
 
@@ -106,11 +106,12 @@ def nary_ad_grid(kenken_grid):
             curr_variables.append(two_d_array[i][j])
 
         col_con = Constraint("Col " + str(j + 1), curr_variables)
-        sat_tuples = get_sat_tuples(len(curr_variables))
+        sat_tuples = get_sat_tuples(curr_variables, n)
         col_con.add_satisfying_tuples(sat_tuples)
         csp.add_constraint(col_con)
 
     return csp, two_d_array
+
 
 def get_cage_sat_tuples(requirement, current_variables, goal_value):
     varDoms = []
