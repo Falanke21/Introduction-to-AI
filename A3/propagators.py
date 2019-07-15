@@ -146,9 +146,9 @@ def GAC_enforce(csp, gac_queue):
                 if not temp_c.has_support(var, d):
                     var.prune_value(d)
                     pruned_values.append((var, d))
+                    if var.cur_domain_size() == 0:
+                        return False, pruned_values
                     for involved_con in csp.get_cons_with_var(var):
                         if involved_con not in gac_queue:
                             gac_queue.append(involved_con)
-                if var.cur_domain_size() == 0:
-                    return False, pruned_values
     return True, pruned_values
