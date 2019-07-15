@@ -33,41 +33,7 @@ from cspbase import *
 import itertools
 
 
-def binary_ne_grid(kenken_grid):
-    # n = kenken_grid[0][0]
-    # variables = []
-    # two_d_array = []
-    #
-    # for i in range(n):
-    #     two_d_array.append([])
-    #     for j in range(n):
-    #         var = Variable(str(i + 1) + str(j + 1), range(1, n + 1))
-    #         variables.append(var)
-    #         two_d_array[i].append(var)
-    #     con = Constraint("Row " + str(i), two_d_array[i])
-    #
-    #     varDoms = []
-    #     for v in two_d_array[i]:
-    #         varDoms.append(v.domain())
-    #     for t in itertools.product(*varDoms):
-    #         if lambda t:
-    #
-    # csp = CSP("kenken", variables)
-    #
-    #
-    # return csp, two_d_array
-    pass
-
-def all_diff(t):
-    """
-    Helper for nary_ad_grid
-    """
-    if len(set(t)) == len(t):
-        return True
-    return False
-
-def nary_ad_grid(kenken_grid):
-    n = kenken_grid[0][0]
+def construct_variables(n):
     variables = []
     two_d_array = []
 
@@ -78,19 +44,63 @@ def nary_ad_grid(kenken_grid):
             var = Variable(str(i + 1) + str(j + 1), range(1, n + 1))
             variables.append(var)
             two_d_array[i].append(var)
+    return variables, two_d_array
+
+
+def all_diff(t):
+    """
+    Helper for nary_ad_grid
+    """
+    if len(set(t)) == len(t):
+        return True
+    return False
+
+
+def get_sat_tuples(curr_variables):
+    varDoms = []
+    sat_tuples = []
+    for v in curr_variables:
+        varDoms.append(v.domain())
+    for t in itertools.product(*varDoms):
+        if all_diff(t):
+            sat_tuples.append(t)
+    return sat_tuples
+
+
+def binary_ne_grid(kenken_grid):
+    n = kenken_grid[0][0]
+    variables, two_d_array = construct_variables(n)
+
+    csp = CSP("kenken", variables)
+
+    # for each variable from i, j = 1 to n - 1(inclusive), constrains diff with i+1 and j+1 cells
+    for i in range(n - 1):
+        for j in range(n - 1):
+            curr_variables = [two_d_array[i][j], two_d_array[i+1][j]]
+            verti_con = Constraint("Col " + str(j) + " from " + str(i) + " to " + str(i+1), curr_variables)
+            sat_tuples = get_sat_tuples(curr_variables)
+            verti_con.add_satisfying_tuples(sat_tuples)
+
+            curr_variables = [two_d_array[i][j], two_d_array[i][j+1]]
+            hori_con = Constraint("Row " + str(i) + " from " + str(j) + " to " + str(j+1), curr_variables)
+            sat_tuples = get_sat_tuples(curr_variables)
+            hori_con.add_satisfying_tuples(sat_tuples)
+
+            csp.add_constraint(verti_con)
+            csp.add_constraint(hori_con)
+    return csp, two_d_array
+
+
+def nary_ad_grid(kenken_grid):
+    n = kenken_grid[0][0]
+    variables, two_d_array = construct_variables(n)
 
     csp = CSP("kenken", variables)
 
     # add row constrains
     for i in range(n):
         row_con = Constraint("Row " + str(i + 1), two_d_array[i])
-        varDoms = []
-        sat_tuples = []
-        for v in two_d_array[i]:
-            varDoms.append(v.domain())
-        for t in itertools.product(*varDoms):
-            if all_diff(t):
-                sat_tuples.append(t)
+        sat_tuples = get_sat_tuples(two_d_array[i])
         row_con.add_satisfying_tuples(sat_tuples)
         csp.add_constraint(row_con)
 
@@ -99,14 +109,9 @@ def nary_ad_grid(kenken_grid):
         curr_variables = []
         for i in range(n):
             curr_variables.append(two_d_array[i][j])
+
         col_con = Constraint("Col " + str(j + 1), curr_variables)
-        varDoms = []
-        sat_tuples = []
-        for v in curr_variables:
-            varDoms.append(v.domain())
-        for t in itertools.product(*varDoms):
-            if all_diff(t):
-                sat_tuples.append(t)
+        sat_tuples = get_sat_tuples(curr_variables)
         col_con.add_satisfying_tuples(sat_tuples)
         csp.add_constraint(col_con)
 
@@ -114,5 +119,4 @@ def nary_ad_grid(kenken_grid):
 
 
 def kenken_csp_model(kenken_grid):
-    ##IMPLEMENT
-    pass
+    return nary_ad_grid(kenken_grid)

@@ -2,9 +2,9 @@ from kenken_csp import *
 from propagators import *
 from heuristics import *
 
-test_props = False;
-test_ord_mrv = True;
-test_ord_lcv = True;
+test_props = True;
+test_ord_mrv = False;
+test_ord_lcv = False;
 
 boards = [[[3], [11, 21, 3, 0], [12, 22, 2, 1], [13, 23, 33, 6, 3], [31, 32, 5, 0]],
           [[4], [11, 21, 6, 3], [12, 13, 3, 0], [14, 24, 3, 1], [22, 23, 7, 0], [31, 32, 2, 2], [33, 43, 3, 1],
@@ -29,10 +29,10 @@ if __name__ == "__main__":
             csp, var_array = kenken_csp_model(b)
             solver = BT(csp)
             print("=======================================================")
-            print("FC")
-            solver.bt_search(prop_FC)
-            # print("GAC")
-            # solver.bt_search(prop_GAC)
+            # print("FC")
+            # solver.bt_search(prop_FC)
+            print("GAC")
+            solver.bt_search(prop_GAC)
             print("Solution")
             print_kenken_soln(var_array)
 
