@@ -112,6 +112,92 @@ def nary_ad_grid(kenken_grid):
 
     return csp, two_d_array
 
+def get_cage_sat_tuples(requirement, current_variables, goal_value):
+    varDoms = []
+    for v in current_variables:
+        varDoms.append(v.domain())
+
+    sat_tuples = []
+    for t in itertools.product(*varDoms):
+        # NOTICE use of * to convert the list v to a sequence of arguments to product
+        if requirement(t, goal_value):
+            sat_tuples.append(t)
+    return sat_tuples
+
+
+def addition(t, goal_value):
+    if sum([item for item in t]) == goal_value:
+        return True
+    return False
+
+
+def subtraction(t, goal_value):
+    # while len(t) != 1:
+    #     temp = (t[0] - t[1],) + (t[2:])
+    #     t = temp
+    # return t[0] == goal_value
+    largest = max(t)
+    temp = largest
+
+    t = list(t)
+    t.remove(largest)
+
+    for value in t:
+        temp -= value
+    return temp == goal_value
+
+
+def multiplication(t, goal_value):
+    acc = 1
+    for item in t:
+        acc *= item
+    return acc == goal_value
+
+
+def division(t, goal_value):
+    # while len(t) != 1:
+    #     temp = (t[0] / t[1],) + (t[2:])
+    #     t = temp
+    # return t[0] == goal_value
+    largest = max(t)
+    temp = largest
+
+    t = list(t)
+    t.remove(largest)
+
+    for value in t:
+        temp /= value
+    return temp == goal_value
+
 
 def kenken_csp_model(kenken_grid):
-    return nary_ad_grid(kenken_grid)
+    csp, two_d_array = binary_ne_grid(kenken_grid)
+    kenken_cages = kenken_grid[1:]
+    for cage in kenken_cages:
+        operation = cage[-1]
+        curr_variables = []
+        for number in cage[0:-2]:
+            number = str(number)
+            i = int(number[0]) - 1
+            j = int(number[1]) - 1
+            curr_variables.append(two_d_array[i][j])
+
+        sat_tuples = []
+        con_name = ""
+        if operation == 0:  # +
+            sat_tuples = get_cage_sat_tuples(addition, curr_variables, cage[-2])
+            con_name = "Add"
+        elif operation == 1:  # -
+            sat_tuples = get_cage_sat_tuples(subtraction, curr_variables, cage[-2])
+            con_name = "Sub"
+        elif operation == 2:  # /
+            sat_tuples = get_cage_sat_tuples(division, curr_variables, cage[-2])
+            con_name = "Div"
+        elif operation == 3:  # *
+            sat_tuples = get_cage_sat_tuples(multiplication, curr_variables, cage[-2])
+            con_name = "Multi"
+
+        con = Constraint(con_name, curr_variables)
+        con.add_satisfying_tuples(sat_tuples)
+        csp.add_constraint(con)
+    return csp, two_d_array
