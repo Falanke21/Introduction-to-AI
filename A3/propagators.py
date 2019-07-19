@@ -112,7 +112,7 @@ def prop_FC(csp, newVar=None):
                     if not c.check(values):
                         variables[unassign_flag].prune_value(d)
                         pruned_values.append((variables[unassign_flag], d))
-                    if variables[unassign_flag].cur_domain_size == 0:  # if cur_dom(V) == empty set
+                    if variables[unassign_flag].cur_domain_size() == 0:  # if cur_dom(V) == empty set
                         return False, pruned_values
 
         return True, pruned_values

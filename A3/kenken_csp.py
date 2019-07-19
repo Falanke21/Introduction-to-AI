@@ -72,14 +72,14 @@ def binary_ne_grid(kenken_grid):
         for j in range(n):
             for k in range(i+1, n):
                 curr_variables = [two_d_array[i][j], two_d_array[k][j]]
-                verti_con = Constraint(str(i) + str(j) + " and " + str(k) + str(j), curr_variables)
+                verti_con = Constraint(str(i+1) + str(j+1) + " and " + str(k+1) + str(j+1), curr_variables)
                 sat_tuples = get_sat_tuples(curr_variables, n)
                 verti_con.add_satisfying_tuples(sat_tuples)
                 csp.add_constraint(verti_con)
 
             for k in range(j+1, n):
                 curr_variables = [two_d_array[i][j], two_d_array[i][k]]
-                hori_con = Constraint(str(i) + str(j) + " and " + str(i) + str(k), curr_variables)
+                hori_con = Constraint(str(i+1) + str(j+1) + " and " + str(i+1) + str(k+1), curr_variables)
                 sat_tuples = get_sat_tuples(curr_variables, n)
                 hori_con.add_satisfying_tuples(sat_tuples)
                 csp.add_constraint(hori_con)

@@ -32,8 +32,8 @@ if __name__ == "__main__":
             print("FC")
             # solver.trace_on()
             solver.bt_search(prop_FC)
-            # print("GAC")
-            # solver.bt_search(prop_GAC)
+            print("GAC")
+            solver.bt_search(prop_GAC)
             print("Solution")
             print_kenken_soln(var_array)
 
